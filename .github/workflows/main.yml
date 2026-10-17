@@ -1,0 +1,27 @@
+name: Build AetherSpace VST3 for Cubase
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-vst3:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Pobierz pliki projektu
+        uses: actions/checkout@v4
+
+      - name: Konfiguracja CMake i pobranie silnika JUCE 8
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Kompilacja wtyczki VST3 (Release)
+        run: cmake --build build --config Release
+
+      - name: Przygotowanie gotowego pliku .vst3 do pobrania
+        uses: actions/upload-artifact@v4
+        with:
+          name: AetherSpace-VST3-${{ matrix.os }}
+          path: build/AetherSpaceReverb_artefacts/Release/VST3/**
